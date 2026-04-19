@@ -31,7 +31,7 @@ client.connect((err) => {
 })
 
 // Routing
-app.get("/workexperience", async (req, res) => {
+app.get("/api/workexperience", async (req, res) => {
     try {
         const result = await client.query("SELECT * FROM workexperience");
         res.json(result.rows);
@@ -40,18 +40,67 @@ app.get("/workexperience", async (req, res) => {
     }
 });
 
-/*
-// En specifik arbetserfarenhet
-app.get("/workexperience/:id", (req, res) => {
+// Hämta en work experience
+app.get("/api/workexperience/:id", async (req, res) => {
+    const id = req.params.id;
 
-})
+    try {
+        const result = await client.query("SELECT * FROM workexperience WHERE id = $1", [id]);
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ message: "Could not get CV" });
+    }
+});
 
 // Lägg till data
-app.post("/workexperience", (req, res) => {
+app.post("/api/workexperience", async (req, res) => {
+    const { companyname, jobtitle, startdate, enddate } = req.body; // Data från request body
 
+    // Validering
+    if (!companyname || !jobtitle || !startdate)
+        return res.status(400).json({ message: "Companyname, jobtitle och startdate krävs" });
+
+    try {
+        const result = await client.query(
+            "INSERT INTO workexperience(companyname, jobtitle, startdate, enddate) VALUES($1, $2, $3, $4) RETURNING id", [companyname, jobtitle, startdate, enddate]);
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ message: "Could not insert work experience" });
+    }
+});
+
+// Uppdatera
+app.put("/api/workexperience/:id", async (req, res) => {
+    const id = req.params.id;
+    const { companyname, jobtitle, startdate, enddate } = req.body; // Data från request body
+
+    // Validering
+    if (!companyname || !jobtitle || !startdate)
+        return res.status(400).json({ message: "Companyname, jobtitle och startdate krävs" });
+
+    try {
+        const result = await client.query("UPDATE workexperience SET companyname = $1, jobtitle = $2, startdate = $3, enddate = $4 WHERE id = $5 RETURNING id", [companyname, jobtitle, startdate, enddate, id]);
+
+        if (!result.rows.length) return res.status(404).json({ message: "Work experience not found" });
+        res.json(result.rows[0].id);
+    } catch (error) {
+        res.status(500).json({ message: "Could not update work experience" });
+    }
 })
-*/
 
-app.listen(3000, () => {
-    console.log("Server running port 3000");
+// Radera en workexperience
+app.delete("/api/workexperience/:id", async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const result = await client.query("DELETE FROM workexperience WHERE id = $1", [id]);
+        res.json({ message: "Deleted" });
+    } catch (error) {
+        res.status(500).json({ message: "Could not delete work experience" });
+    }
+});
+
+// Starta applikation
+app.listen(process.env.PORT, () => {
+    console.log("Servern startad på http://localhost:" + process.env.PORT + "/api/workexperience");
 })
