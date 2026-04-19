@@ -4,7 +4,7 @@ Byggt med Express.
 Innehåller grundläggande funktionalitet för CRUD.
 
 ## Länk
-Liveversion av API:et finns tillgängligt:
+Liveversion av API:et finns tillgängligt: https://dt207g-lab2.onrender.com/api/workexperience
 
 ## Installation
 API:et använder en PostgreSQL-databas. Efter klonat repository kör kommando npm install för installation av de npm paket som krävs. Kör installationsfilen setup.js för att skapa databas med tabellen workexperience enligt nedan:
