@@ -5,7 +5,7 @@ const router = express.Router();
 // Routing
 router.get("/", async (req, res) => {
     try {
-        const result = await client.query("SELECT * FROM workexperience");
+        const result = await client.query("SELECT * FROM workexperience ORDER BY startdate DESC");
         res.json(result.rows);
     } catch (error) {
         res.status(500).json({ message: "Could not get CV" });
